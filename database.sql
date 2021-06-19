@@ -1,11 +1,19 @@
-CREATE DATABASE crudapp /*name of database to be created*/
+CREATE DATABASE studata; /*name of database to be created*/
+CREATE DATABASE camdata; /*name of database to be created*/
 
-CREATE TABLE crudapp( /*database table created and its variables*/
-    crud_id SERIAL PRIMARY KEY,
-    firstName VARCHAR(50),
-    lastName VARCHAR(50),
-    email VARCHAR(50),
-    link VARCHAR(100),
-    gpa VARCHAR(5),
-    description VARCHAR(255)
+/*database table created and its variables*/
+CREATE TABLE studata( 
+    studata_id SERIAL PRIMARY KEY,
+    sname VARCHAR(100),
+    sgpa VARCHAR(5),
+    slink VARCHAR(100)
+);
+
+/*database table created and its variables*/
+CREATE TABLE camdata( 
+    camdata_id SERIAL PRIMARY KEY,
+    cname VARCHAR(100),
+    clocation VARCHAR(100),
+    clink VARCHAR(100),
+    cdescription VARCHAR(255)
 );

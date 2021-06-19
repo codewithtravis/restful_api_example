@@ -10,27 +10,37 @@ app.use(cors());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.json()); //req.body
 
-
-const pool = new Pool(
+const stuPool = new Pool(
     {
         user: 'postgres',
         host: 'localhost',
-        database: 'crudapp', //swap databases by changing the name
+        database: 'studata', //swap databases by changing the name
         password: '1Gunther!', // use your own postgres password here
         port:5432
     }
 );
 
+const camPool = new Pool(
+    {
+        user: 'postgres',
+        host: 'localhost',
+        database: 'camdata', //swap databases by changing the name
+        password: '1Gunther!', // use your own postgres password here
+        port:5432
+    }
+);
+
+//------------------------------------------------STUDENT DATA BELOW-------------------------------------------------------
 //Routes//
 
 //create a todo (insert data into database)
-app.post("/todos", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.post("/addStudent", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
-        const {firstName, lastName, email, link, gpa, description} = req.body; //info to be into database
-        const newTodo = await pool.query(
+        const {sname, sgpa, slink} = req.body; //info to be into database
+        const newTodo = await stuPool.query(
             /*postgres command to post an element to database*/
-            "INSERT INTO crudapp (firstName, lastName, email, link, gpa, description) VALUES($1, $2, $3, $4, $5, $6) RETURNING *", 
-            [firstName, lastName, email, link, gpa, description]
+            "INSERT INTO studata (sname, sgpa, slink) VALUES($1, $2, $3) RETURNING *", 
+            [sname, sgpa, slink]
         );
         res.json(newTodo.rows[0]);
     } catch (error) {
@@ -39,10 +49,10 @@ app.post("/todos", async(req, res) => { //change /todos route to "/somethingMore
 });
 //get all todos (get everything from database)
 
-app.get("/todos", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.get("/allStudents", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
         /*postgres command to get all elements from database*/
-        const allTodos = await pool.query("SELECT * FROM crudapp"); 
+        const allTodos = await stuPool.query("SELECT * FROM studata"); 
         res.json(allTodos.rows);
     } catch (error) {
         console.log(error.message);
@@ -50,43 +60,112 @@ app.get("/todos", async(req, res) => { //change /todos route to "/somethingMoreM
 });
 
 //get a todo (get one element from database)
-app.get("/todos/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.get("/student/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
         const {id} = req.params;
         /*postgres command to get one element from database*/
-        const todo = await pool.query("SELECT * FROM crudapp WHERE crud_id = $1", [id]) 
+        const todo = await stuPool.query("SELECT * FROM studata WHERE studata_id = $1", [id]) 
         res.json(todo.rows[0]);
     } catch (error) {
         console.log(error.message);
     }
 });
 //update a todo
-app.put("/todos/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.put("/updateStudent/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
         const {id} = req.params;
-        const {firstName, lastName, email, link, gpa, description} = req.body;
-        const updateTodo = await pool.query(
+        const {sname, sgpa, slink} = req.body;
+        const updateTodo = await stuPool.query(
             /*postgres command to update one element from database*/
-            "UPDATE crudapp SET (firstName, lastName, email, link, gpa, description) = ($1, $2, $3, $4, $5, $6) WHERE crud_id = $7", 
-            [firstName, lastName, email, link, gpa, description, id]
+            "UPDATE studata SET (sname, sgpa, slink) = ($1, $2, $3) WHERE studata_id = $4", 
+            [sname, sgpa, slink, id]
             );
-            res.json("crudapp was updated!");
+            res.json("studata was updated!");
     } catch (error) {
         console.log(error.message);
     }
 });
 //delete a todo
 
-app.delete("/todos/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.delete("/removeStudent/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
         const {id} = req.params;
         /*postgres command to delete one element from database*/
-        const deleteTodo = await pool.query("DELETE FROM crudapp WHERE crud_id = $1", [id]); 
-        res.json("crudapp was deleted!");
+        const deleteTodo = await stuPool.query("DELETE FROM studata WHERE studata_id = $1", [id]); 
+        res.json("studata was deleted!");
     } catch (error) {
         console.log(error.message);
     }
 });
+//------------------------------------------------CAMPUS DATA BELOW-------------------------------------------------------
+
+//Routes//
+
+//create a todo (insert data into database)
+app.post("/addCampus", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+    try {
+        const {cname, clocation, clink, cdescription} = req.body; //info to be into database
+        const newTodo = await camPool.query(
+            /*postgres command to post an element to database*/
+            "INSERT INTO camdata (cname, clocation, clink, cdescription) VALUES($1, $2, $3, $4) RETURNING *", 
+            [cname, clocation, clink, cdescription]
+        );
+        res.json(newTodo.rows[0]);
+    } catch (error) {
+        console.log(error.message);
+    }
+});
+//get all todos (get everything from database)
+
+app.get("/allCampuses", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+    try {
+        /*postgres command to get all elements from database*/
+        const allTodos = await camPool.query("SELECT * FROM camdata"); 
+        res.json(allTodos.rows);
+    } catch (error) {
+        console.log(error.message);
+    }
+});
+
+//get a todo (get one element from database)
+app.get("/campus/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+    try {
+        const {id} = req.params;
+        /*postgres command to get one element from database*/
+        const todo = await camPool.query("SELECT * FROM camdata WHERE camdata_id = $1", [id]) 
+        res.json(todo.rows[0]);
+    } catch (error) {
+        console.log(error.message);
+    }
+});
+//update a todo
+app.put("/updateCampus/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+    try {
+        const {id} = req.params;
+        const {cname, clocation, clink, cdescription} = req.body;
+        const updateTodo = await camPool.query(
+            /*postgres command to update one element from database*/
+            "UPDATE camdata SET (cname, clocation, clink, cdescription) = ($1, $2, $3, $4) WHERE camdata_id = $5", 
+            [cname, clocation, clink, cdescription, id]
+            );
+            res.json("camdata was updated!");
+    } catch (error) {
+        console.log(error.message);
+    }
+});
+//delete a todo
+
+app.delete("/removeCampus/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+    try {
+        const {id} = req.params;
+        /*postgres command to delete one element from database*/
+        const deleteTodo = await camPool.query("DELETE FROM camdata WHERE camdata_id = $1", [id]); 
+        res.json("camdata was deleted!");
+    } catch (error) {
+        console.log(error.message);
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log("Server is running on Port: " + PORT);
