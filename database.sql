@@ -1,19 +1,19 @@
-CREATE DATABASE studata; /*name of database to be created*/
-CREATE DATABASE camdata; /*name of database to be created*/
+CREATE DATABASE getpet; /*name of database to be created*/
+
 
 /*database table created and its variables*/
-CREATE TABLE studata( 
-    studata_id SERIAL PRIMARY KEY,
-    sname VARCHAR(100),
-    sgpa VARCHAR(5),
-    slink VARCHAR(100)
+CREATE TABLE userlogin( 
+    email VARCHAR(50) PRIMARY KEY NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    hash VARCHAR(50) NOT NULL,
+    isAdmin INT DEFAULT 0
 );
 
 /*database table created and its variables*/
-CREATE TABLE camdata( 
-    camdata_id SERIAL PRIMARY KEY,
-    cname VARCHAR(100),
-    clocation VARCHAR(100),
-    clink VARCHAR(100),
-    cdescription VARCHAR(255)
+CREATE TABLE petinfo( 
+    id SERIAL PRIMARY KEY,
+    breed VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    image VARCHAR(200) NOT NULL,
+    reservation_id VARCHAR(50) REFERENCES userlogin(email) DEFAULT NULL
 );

@@ -2,45 +2,33 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 var {Pool, Client} = require('pg');
-let bodyParser = require('body-parser');
-const PORT = 5000;
+const PORT = 4000;
 
 //middleware
 app.use(cors());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.urlencoded({extended: true}));
 app.use(express.json()); //req.body
 
-const stuPool = new Pool(
+const petPool = new Pool(
     {
         user: 'postgres',
         host: 'localhost',
-        database: 'studata', //swap databases by changing the name
+        database: 'getpet', //swap databases by changing the name
         password: '1Gunther!', // use your own postgres password here
         port:5432
     }
 );
-
-const camPool = new Pool(
-    {
-        user: 'postgres',
-        host: 'localhost',
-        database: 'camdata', //swap databases by changing the name
-        password: '1Gunther!', // use your own postgres password here
-        port:5432
-    }
-);
-
-//------------------------------------------------STUDENT DATA BELOW-------------------------------------------------------
+//------------------------------------------------USER DATA BELOW-------------------------------------------------------
 //Routes//
 
 //create a todo (insert data into database)
-app.post("/addStudent", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.post("/addUser", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
-        const {sname, sgpa, slink} = req.body; //info to be into database
-        const newTodo = await stuPool.query(
+        const {email, name, hash, isAdmin} = req.body; //info to be into database
+        const newTodo = await petPool.query(
             /*postgres command to post an element to database*/
-            "INSERT INTO studata (sname, sgpa, slink) VALUES($1, $2, $3) RETURNING *", 
-            [sname, sgpa, slink]
+            "INSERT INTO userlogin (email, name, hash, isAdmin) VALUES($1, $2, $3, $4) RETURNING *", 
+            [email, name, hash, isAdmin]
         );
         res.json(newTodo.rows[0]);
     } catch (error) {
@@ -49,10 +37,10 @@ app.post("/addStudent", async(req, res) => { //change /todos route to "/somethin
 });
 //get all todos (get everything from database)
 
-app.get("/allStudents", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.get("/allUsers", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
         /*postgres command to get all elements from database*/
-        const allTodos = await stuPool.query("SELECT * FROM studata"); 
+        const allTodos = await petPool.query("SELECT * FROM userlogin"); 
         res.json(allTodos.rows);
     } catch (error) {
         console.log(error.message);
@@ -60,55 +48,55 @@ app.get("/allStudents", async(req, res) => { //change /todos route to "/somethin
 });
 
 //get a todo (get one element from database)
-app.get("/student/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.get("/user/:email", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
-        const {id} = req.params;
+        const {email} = req.params;
         /*postgres command to get one element from database*/
-        const todo = await stuPool.query("SELECT * FROM studata WHERE studata_id = $1", [id]) 
+        const todo = await petPool.query("SELECT * FROM userlogin WHERE email = $1", [email]) 
         res.json(todo.rows[0]);
     } catch (error) {
         console.log(error.message);
     }
 });
 //update a todo
-app.put("/updateStudent/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.put("/updateUser/:email", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
-        const {id} = req.params;
-        const {sname, sgpa, slink} = req.body;
-        const updateTodo = await stuPool.query(
+        const {email} = req.params;
+        const {name, hash, isAdmin} = req.body;
+        const updateTodo = await petPool.query(
             /*postgres command to update one element from database*/
-            "UPDATE studata SET (sname, sgpa, slink) = ($1, $2, $3) WHERE studata_id = $4", 
-            [sname, sgpa, slink, id]
+            "UPDATE userlogin SET (name, hash, isAdmin) = ($1, $2, $3) WHERE email = $4", 
+            [email, name, hash, isAdmin]
             );
-            res.json("studata was updated!");
+            res.json("userlogin was updated!");
     } catch (error) {
         console.log(error.message);
     }
 });
 //delete a todo
 
-app.delete("/removeStudent/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.delete("/removeUser/:email", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
-        const {id} = req.params;
+        const {email} = req.params;
         /*postgres command to delete one element from database*/
-        const deleteTodo = await stuPool.query("DELETE FROM studata WHERE studata_id = $1", [id]); 
-        res.json("studata was deleted!");
+        const deleteTodo = await petPool.query("DELETE FROM userlogin WHERE email = $1", [email]); 
+        res.json("userlogin was deleted!");
     } catch (error) {
         console.log(error.message);
     }
 });
-//------------------------------------------------CAMPUS DATA BELOW-------------------------------------------------------
+//------------------------------------------------PET DATA BELOW-------------------------------------------------------
 
 //Routes//
 
 //create a todo (insert data into database)
-app.post("/addCampus", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.post("/addPet", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
-        const {cname, clocation, clink, cdescription} = req.body; //info to be into database
-        const newTodo = await camPool.query(
+        const {breed, description, image, reservation_id} = req.body; //info to be into database
+        const newTodo = await petPool.query(
             /*postgres command to post an element to database*/
-            "INSERT INTO camdata (cname, clocation, clink, cdescription) VALUES($1, $2, $3, $4) RETURNING *", 
-            [cname, clocation, clink, cdescription]
+            "INSERT INTO petinfo (breed, description, image, reservation_id) VALUES($1, $2, $3, $4) RETURNING *", 
+            [breed, description, image, reservation_id]
         );
         res.json(newTodo.rows[0]);
     } catch (error) {
@@ -117,10 +105,10 @@ app.post("/addCampus", async(req, res) => { //change /todos route to "/something
 });
 //get all todos (get everything from database)
 
-app.get("/allCampuses", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.get("/allPets", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
         /*postgres command to get all elements from database*/
-        const allTodos = await camPool.query("SELECT * FROM camdata"); 
+        const allTodos = await petPool.query("SELECT * FROM petinfo"); 
         res.json(allTodos.rows);
     } catch (error) {
         console.log(error.message);
@@ -128,39 +116,39 @@ app.get("/allCampuses", async(req, res) => { //change /todos route to "/somethin
 });
 
 //get a todo (get one element from database)
-app.get("/campus/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.get("/pet/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
         const {id} = req.params;
         /*postgres command to get one element from database*/
-        const todo = await camPool.query("SELECT * FROM camdata WHERE camdata_id = $1", [id]) 
+        const todo = await petPool.query("SELECT * FROM petinfo WHERE id = $1", [id]) 
         res.json(todo.rows[0]);
     } catch (error) {
         console.log(error.message);
     }
 });
 //update a todo
-app.put("/updateCampus/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.put("/updatePet/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
         const {id} = req.params;
-        const {cname, clocation, clink, cdescription} = req.body;
-        const updateTodo = await camPool.query(
+        const {breed, description, image, reservation_id} = req.body;
+        const updateTodo = await petPool.query(
             /*postgres command to update one element from database*/
-            "UPDATE camdata SET (cname, clocation, clink, cdescription) = ($1, $2, $3, $4) WHERE camdata_id = $5", 
-            [cname, clocation, clink, cdescription, id]
+            "UPDATE petinfo SET (breed, description, image, reservation_id) = ($1, $2, $3, $4) WHERE id = $5", 
+            [breed, description, image, reservation_id, id]
             );
-            res.json("camdata was updated!");
+            res.json("petinfo was updated!");
     } catch (error) {
         console.log(error.message);
     }
 });
 //delete a todo
 
-app.delete("/removeCampus/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
+app.delete("/removePet/:id", async(req, res) => { //change /todos route to "/somethingMoreMeaningful"
     try {
         const {id} = req.params;
         /*postgres command to delete one element from database*/
-        const deleteTodo = await camPool.query("DELETE FROM camdata WHERE camdata_id = $1", [id]); 
-        res.json("camdata was deleted!");
+        const deleteTodo = await petPool.query("DELETE FROM petinfo WHERE id = $1", [id]); 
+        res.json("petinfo was deleted!");
     } catch (error) {
         console.log(error.message);
     }
